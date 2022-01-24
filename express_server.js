@@ -15,6 +15,10 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
 app.get("*", (req, res) => {
   res.status(404).write('404 Page Not Found!');
   res.end();
