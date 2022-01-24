@@ -11,6 +11,15 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+app.get("*", (req, res) => {
+  res.status(404).write('404 Page Not Found!');
+  res.end();
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
