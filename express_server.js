@@ -45,15 +45,21 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("*", (req, res) => {
-  res.status(404).write('404 Page Not Found!');
-  res.end();
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
+
+
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  let generatedURL = generateRandomString();
+  urlDatabase[generatedURL] = req.body.longURL;
+  console.log(req.body);
+  res.redirect(`/urls/${generatedURL}`);
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
