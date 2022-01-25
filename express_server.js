@@ -51,7 +51,6 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
-
 app.post("/urls", (req, res) => {
   let generatedURL = generateRandomString();
   urlDatabase[generatedURL] = req.body.longURL;
