@@ -7,6 +7,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(cookieParser());
 
+
+// ------------------------------------ Data --------------------------------------------------------------
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -20,6 +23,8 @@ const generateRandomString = () => {
   }
   return str;
 };
+
+// --------------------------------   GET ROUTES  -------------------------------------------------------
 
 // home page
 app.get("/", (req, res) => {
@@ -72,6 +77,18 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+//
+app.get("/register", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies['username']
+  };
+  res.render("urls_register", templateVars);
+});
+
+// -------------------------------------- POST ROUTES ------------------------------------------------------
+
 // set the cookie for the user with their username
 app.post('/login', (req, res) => {
   res.cookie('username', req.body['username']);
@@ -112,6 +129,14 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${generatedURL}`);
 });
 
+//
+// app.post('/register', (req, res) => {
+//   const index = req.params['shortURL'];
+//   res.redirect(`/urls/${index}`);
+// });
+
+
+// ---------------------------------- LISTEN ----------------------------------------------------------
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
