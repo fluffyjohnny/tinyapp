@@ -15,6 +15,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
+
 const generateRandomString = () => {
   let str = '';
   const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -23,6 +36,7 @@ const generateRandomString = () => {
   }
   return str;
 };
+
 
 // --------------------------------   GET ROUTES  -------------------------------------------------------
 
@@ -35,7 +49,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVar = {
     urls: urlDatabase,
-    username: req.cookies['username'],
+    user: users[req.cookies['user_id']],
   };
   res.render('urls_index', templateVar);
 });
@@ -43,7 +57,7 @@ app.get("/urls", (req, res) => {
 // when the path is urls/new, render then urls_new ejs for the client
 app.get("/urls/new", (req, res) => {
   const templateVar = {
-    username: req.cookies['username'],
+    user: users[req.cookies['user_id']],
   };
   res.render("urls_new", templateVar);
 });
@@ -53,9 +67,20 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']],
+
   };
   res.render("urls_show", templateVars);
+});
+
+// when on /register, render urls_register
+app.get("/register", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    user: users[req.cookies['user_id']],
+  };
+  res.render("urls_register", templateVars);
 });
 
 // list the JSON object string
@@ -77,15 +102,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-//
-app.get("/register", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies['username']
-  };
-  res.render("urls_register", templateVars);
-});
+
 
 // -------------------------------------- POST ROUTES ------------------------------------------------------
 
@@ -97,7 +114,7 @@ app.post('/login', (req, res) => {
 
 // clear the user cookie and redirect to /urls
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
@@ -125,15 +142,23 @@ app.post('/urls/:shortURL', (req, res) => {
 app.post("/urls", (req, res) => {
   let generatedURL = generateRandomString();
   urlDatabase[generatedURL] = req.body.longURL;
-  console.log(req.body);
   res.redirect(`/urls/${generatedURL}`);
 });
 
-//
-// app.post('/register', (req, res) => {
-//   const index = req.params['shortURL'];
-//   res.redirect(`/urls/${index}`);
-// });
+// input registration info into the user database, then assgining cookie for said user
+app.post('/register', (req, res) => {
+  const generatedID = generateRandomString();
+  users[generatedID] = {
+    id: generatedID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie('user_id', generatedID);
+
+
+
+  res.redirect(`/urls`);
+});
 
 
 // ---------------------------------- LISTEN ----------------------------------------------------------

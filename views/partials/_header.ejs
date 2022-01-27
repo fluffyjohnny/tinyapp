@@ -11,16 +11,19 @@
       </div>
     </div>
 
-        <% if (username && !undefined) { %>
+        <% if (user && !undefined) { %>
           <form class="form-inline" method="POST" action="/logout">
-            <a class='nav-item'>Logged In As: <%= username %> !</a> &nbsp&nbsp&nbsp
+            <a class='nav-item'>Logged In As: <%= user.email %> !</a> &nbsp&nbsp&nbsp
             <button type="submit" class=" btn btn-dark">Logout</button>
           </form>
         <% } else { %>
 
         <form class="form-inline" method="POST" action="/login">
           <input name="username" id="submit" type="text" placeholder=" Username"> &nbsp&nbsp&nbsp
-          <button type="submit" class=" btn btn-dark">Login</button>
+          <button type="submit" class=" btn btn-dark">Login</button> &nbsp&nbsp&nbsp
+        </form>
+        <form class="form-inline" method="GET" action="/register">
+          <button type="submit" class=" btn btn-success">Register</button>
         </form>
         <% } %>
 
