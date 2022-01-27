@@ -3,10 +3,30 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(cookieParser());
 
+
+// ----------------------------- Helper Functions ------------------------------
+
+const generateRandomString = () => {
+  let str = '';
+  const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 7; i++) {
+    str += char.charAt(Math.floor(Math.random() * char.length));
+  }
+  return str;
+};
+
+const registeredEmail = (email) => {
+  for (let id in users) {
+    if (users[id].email === email) {
+      return true;
+    }
+  }
+  return false;
+};
 
 // ------------------------------------ Data --------------------------------------------------------------
 
@@ -28,16 +48,6 @@ const users = {
   }
 };
 
-const generateRandomString = () => {
-  let str = '';
-  const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 7; i++) {
-    str += char.charAt(Math.floor(Math.random() * char.length));
-  }
-  return str;
-};
-
-
 // --------------------------------   GET ROUTES  -------------------------------------------------------
 
 // home page
@@ -51,6 +61,7 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: users[req.cookies['user_id']],
   };
+  console.log('users', users);
   res.render('urls_index', templateVar);
 });
 
@@ -147,6 +158,22 @@ app.post("/urls", (req, res) => {
 
 // input registration info into the user database, then assgining cookie for said user
 app.post('/register', (req, res) => {
+
+  // if submitted blanks, return error 400
+  if (req.body.email === '' || req.body.password === '') {
+    res.statusCode = 400;
+    res.write(`Empty Input! Status Code: ${res.statusCode}`);
+    res.end();
+  }
+
+  // if email is already in database, return error 400
+  if (registeredEmail(req.body.email)) {
+    res.statusCode = 400;
+    res.write(`Email Already In Use! Status Code: ${res.statusCode}`);
+    res.end();
+  }
+
+  // else input their info into the database, assign cookies, and redirect to /urls
   const generatedID = generateRandomString();
   users[generatedID] = {
     id: generatedID,
@@ -154,9 +181,6 @@ app.post('/register', (req, res) => {
     password: req.body.password
   };
   res.cookie('user_id', generatedID);
-
-
-
   res.redirect(`/urls`);
 });
 
