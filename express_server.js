@@ -135,8 +135,16 @@ app.get("/urls.json", (req, res) => {
 });
 
 
-// redirect to longURL when clicked on shortURL
+// redirect to longURL when clicked on shortURL, and throw 404 if short url isn't in the database
 app.get("/u/:shortURL", (req, res) => {
+
+  // doesn't exist in database, therefore error 404
+  if (!urlDatabase[req.params.shortURL]) {
+    res.statusCode = 404;
+    res.send('Page Not Found! Error Code: 404');
+  }
+
+  // if the new long URL does not include http://, add it
   let longURL = urlDatabase[req.params.shortURL].longURL;
   if (!longURL.includes('://')) {
     longURL = `http://${longURL}`;
