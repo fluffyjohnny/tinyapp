@@ -18,12 +18,11 @@
           </form>
         <% } else { %>
 
-        <form class="form-inline" method="POST" action="/login">
-          <input name="username" id="submit" type="text" placeholder=" Username"> &nbsp&nbsp&nbsp
-          <button type="submit" class=" btn btn-dark">Login</button> &nbsp&nbsp&nbsp
+        <form class="form-inline" method="GET" action="/login">
+          <button type="submit" class=" btn btn-success">Login</button> &nbsp&nbsp&nbsp
         </form>
         <form class="form-inline" method="GET" action="/register">
-          <button type="submit" class=" btn btn-success">Register</button>
+          <button type="submit" class=" btn btn-info">Register</button>
         </form>
         <% } %>
 

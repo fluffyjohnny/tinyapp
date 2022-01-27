@@ -28,6 +28,16 @@ const registeredEmail = (email) => {
   return false;
 };
 
+const verifyUser = (email, password) => {
+  for (const user in users) {
+    if (users[user].email === email && users[user].password === password) {
+      return users[user];
+    }
+  }
+  return false;
+};
+
+
 // ------------------------------------ Data --------------------------------------------------------------
 
 const urlDatabase = {
@@ -57,20 +67,22 @@ app.get("/", (req, res) => {
 
 // when the path is /urls, render the urls_index ejs for the client
 app.get("/urls", (req, res) => {
-  const templateVar = {
+  const templateVars = {
     urls: urlDatabase,
     user: users[req.cookies['user_id']],
   };
   console.log('users', users);
-  res.render('urls_index', templateVar);
+  res.render('urls_index', templateVars);
+  res.end();
 });
 
 // when the path is urls/new, render then urls_new ejs for the client
 app.get("/urls/new", (req, res) => {
-  const templateVar = {
+  const templateVars = {
     user: users[req.cookies['user_id']],
   };
-  res.render("urls_new", templateVar);
+  res.render("urls_new", templateVars);
+  res.end();
 });
 
 // when the path is urls/shortURL, render urls_show ejs
@@ -82,6 +94,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
   };
   res.render("urls_show", templateVars);
+  res.end();
 });
 
 // when on /register, render urls_register
@@ -92,16 +105,42 @@ app.get("/register", (req, res) => {
     user: users[req.cookies['user_id']],
   };
   res.render("urls_register", templateVars);
+  res.end();
+});
+
+//
+app.get("/login", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    user: users[req.cookies['user_id']],
+  };
+
+  res.render('urls_login', templateVars);
+  res.end();
+});
+
+// bring user to the welcome page
+app.get('/welcome_back', (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    user: users[req.cookies['user_id']],
+  };
+  res.render('urls_welcomeBack', templateVars);
+  res.end();
 });
 
 // list the JSON object string
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+  res.end();
 });
 
 // log hello world to client
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
+  res.end();
 });
 
 // redirect to longURL when clicked on shortURL
@@ -114,13 +153,25 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
-
 // -------------------------------------- POST ROUTES ------------------------------------------------------
 
-// set the cookie for the user with their username
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body['username']);
-  res.redirect('/urls');
+// check if the email and password matches the database, if yes welcome them, if no try again
+app.post('/login', (req, res) => { //
+  
+  const candidateEmail = req.body.email;
+  const candidatePassword = req.body.password;
+  const verifiedUser = verifyUser(candidateEmail, candidatePassword);
+  const cookieGiver = (value) => {
+    res.cookie('user_id',value);
+  };
+
+  if (!verifiedUser) {
+    res.statusCode = 403;
+    res.redirect('/login');
+  } else if (verifiedUser) {
+    cookieGiver(verifiedUser.id);
+    res.redirect('/welcome_back');
+  }
 });
 
 // clear the user cookie and redirect to /urls
@@ -181,7 +232,7 @@ app.post('/register', (req, res) => {
     password: req.body.password
   };
   res.cookie('user_id', generatedID);
-  res.redirect(`/urls`);
+  res.redirect(`/urls/new`);
 });
 
 

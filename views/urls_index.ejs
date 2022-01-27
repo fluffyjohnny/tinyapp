@@ -28,11 +28,11 @@
             <td><%= urls[url] %></td>
             <td>
               <form class="form-inline" method="POST" action="/urls/<%= url %>">
-              <button type="submit" class=" btn btn-warning">Edit</button>
+              <button type="submit" class=" btn btn-outline-warning">Edit</button>
               </form></td>
             <td>
               <form class="form-inline" method="POST" action="/urls/<%= url %>/delete">
-              <button type="submit" class=" btn btn-danger">Delete</button>
+              <button type="submit" class=" btn btn-outline-danger">Delete</button>
               </form></td> 
           </tr>
         <% } %>
