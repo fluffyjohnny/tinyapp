@@ -41,8 +41,12 @@ const verifyUser = (email, password) => {
 // ------------------------------------ Data --------------------------------------------------------------
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: 'example'},
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: 'example'},
 };
 
 const users = {
@@ -71,7 +75,7 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: users[req.cookies['user_id']],
   };
-  console.log('users', users);
+  console.log('users', users); // TEST
   res.render('urls_index', templateVars);
   res.end();
 });
@@ -81,6 +85,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies['user_id']],
   };
+  console.log('urlDatabase', urlDatabase); // TEST
   res.render("urls_new", templateVars);
   res.end();
 });
@@ -89,9 +94,8 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[req.cookies['user_id']],
-
   };
   res.render("urls_show", templateVars);
   res.end();
@@ -100,8 +104,6 @@ app.get("/urls/:shortURL", (req, res) => {
 // when on /register, render urls_register ejs
 app.get("/register", (req, res) => {
   const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
     user: users[req.cookies['user_id']],
   };
   res.render("urls_register", templateVars);
@@ -111,11 +113,8 @@ app.get("/register", (req, res) => {
 // when on /login, render url_login ejs
 app.get("/login", (req, res) => {
   const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
     user: users[req.cookies['user_id']],
   };
-
   res.render('urls_login', templateVars);
   res.end();
 });
@@ -123,8 +122,6 @@ app.get("/login", (req, res) => {
 // bring user to the welcome page after successful login
 app.get('/welcome_back', (req, res) => {
   const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
     user: users[req.cookies['user_id']],
   };
   res.render('urls_welcomeBack', templateVars);
@@ -137,19 +134,21 @@ app.get("/urls.json", (req, res) => {
   res.end();
 });
 
-// log hello world to client
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-  res.end();
-});
 
 // redirect to longURL when clicked on shortURL
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params['shortURL']];
+  let longURL = urlDatabase[req.params.shortURL].longURL;
   if (!longURL.includes('://')) {
     longURL = `http://${longURL}`;
   }
   res.redirect(longURL);
+});
+
+// log hello world to client
+app.get("*", (req, res) => {
+  res.statusCode = 404;
+  res.send("Error 404: Page Not Found");
+  res.end();
 });
 
 
@@ -185,7 +184,7 @@ app.post('/logout', (req, res) => {
 // for client to edit an existing longURL
 app.post('/edit/:shortURL', (req, res) => {
   const index = req.params['shortURL'];
-  urlDatabase[index] = req.body['updatedLongURL'];
+  urlDatabase[index].longURL = req.body['updatedLongURL'];
   res.redirect('/urls');
 });
 
@@ -205,8 +204,14 @@ app.post('/urls/:shortURL', (req, res) => {
 // generate a randomized string for the longURL, and assigning it into the database
 app.post("/urls", (req, res) => {
   let generatedURL = generateRandomString();
-  urlDatabase[generatedURL] = req.body.longURL;
-  res.redirect(`/urls/${generatedURL}`);
+  urlDatabase[generatedURL] = {longURL: req.body.longURL, userID: req.cookies['user_id']};      ///
+
+  if (users[req.cookies['user_id']]) {
+    res.redirect(`/urls/${generatedURL}`);
+  }
+  res.statusCode = 401;
+  res.redirect('/login');
+  res.end();
 });
 
 // input registration info into the user database, then assgining cookie for said user
