@@ -71,13 +71,25 @@ app.get("/", (req, res) => {
 
 // when the path is /urls, render the urls_index ejs for the client
 app.get("/urls", (req, res) => {
+  
+  const isItYourURL = (data) => {
+    const newDatabase = {};
+    for (const url in data) {
+      if (data[url]['userID'] === req.cookies['user_id']) {
+        newDatabase[url] = data[url];
+      }
+    }
+    return newDatabase;
+  };
+ 
   const templateVars = {
     urls: urlDatabase,
     user: users[req.cookies['user_id']],
+    newURLS: isItYourURL(urlDatabase),
   };
+
   console.log('users', users); // TEST
   res.render('urls_index', templateVars);
-  res.end();
 });
 
 // when the path is urls/new, render then urls_new ejs for the client

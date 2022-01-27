@@ -12,6 +12,11 @@
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
+    <% if (!user) { %>
+      <br>
+      <h4> Error Code 401 </h4>
+      <h5> Please Login or Signup first! </h5>
+    <% } else { %>
     <table class="table">
       <thead>
         <tr>
@@ -22,10 +27,10 @@
         </tr>
       </thead>
       <tbody>
-        <% for(let url in urls) { %>
+        <% for(let url in newURLS) { %>
           <tr>
             <td><%= url %></td>
-            <td><%= urls[url].longURL %></td>
+            <td><%= newURLS[url].longURL %></td>
             <td>
               <form class="form-inline" method="POST" action="/urls/<%= url %>">
               <button type="submit" class=" btn btn-outline-warning">Edit</button>
@@ -38,6 +43,7 @@
         <% } %>
       </tbody>
     </table>
+  <% } %>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
