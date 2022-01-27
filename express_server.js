@@ -32,7 +32,7 @@ const registeredEmail = (email) => {
 
 const verifyUser = (email, password) => {
   for (const user in users) {
-    if (users[user].email === email && users[user].password === password) {
+    if (users[user].email === email && bcrypt.compareSync(password, users[user].password)) {
       return users[user];
     }
   }
@@ -92,7 +92,7 @@ app.get("/urls", (req, res) => {
     newURLS: isItYourURL(urlDatabase),
   };
 
-  // console.log('users', users); // TEST
+  console.log('users', users); // TEST
   res.render('urls_index', templateVars);
 });
 
@@ -101,7 +101,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies['user_id']],
   };
-  // console.log('urlDatabase', urlDatabase); // TEST
+  console.log('urlDatabase', urlDatabase); // TEST
   res.render("urls_new", templateVars);
   res.end();
 });
@@ -179,7 +179,7 @@ app.get("*", (req, res) => {
 // -------------------------------------- POST ROUTES ------------------------------------------------------
 
 // check if the email and password matches the database, if yes welcome them, if no try again
-app.post('/login', (req, res) => { //
+app.post('/login', (req, res) => {
 
   const candidateEmail = req.body.email;
   const candidatePassword = req.body.password;
