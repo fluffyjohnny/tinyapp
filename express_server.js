@@ -1,9 +1,10 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
+const helperFunctions = require("./helpers");
 const salt = bcrypt.genSaltSync(10);
 
 
@@ -13,41 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(cookieSession({
   name: 'session',
-  keys: ['chickenbutt'],
-  // Cookie Options
+  keys: ['chickenButt', 'bokchoyBoy', 'babyJesus'],
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
-
-
-// ----------------------------- Helper Functions ------------------------------
-
-const generateRandomString = () => {
-  let str = '';
-  const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 7; i++) {
-    str += char.charAt(Math.floor(Math.random() * char.length));
-  }
-  return str;
-};
-
-const registeredEmail = (email) => {
-  for (let id in users) {
-    if (users[id].email === email) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const verifyUser = (email, password) => {
-  for (const user in users) {
-    if (users[user].email === email && bcrypt.compareSync(password, users[user].password)) {
-      return users[user];
-    }
-  }
-  return false;
-};
-
 
 // ------------------------------------ Data --------------------------------------------------------------
 
@@ -74,6 +43,10 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+
+// ----------------------------- Helper Functions ------------------------------
+
+const { generateRandomString, registeredEmail, verifyUser, getUserEmail } = helperFunctions(users, bcrypt);
 
 // --------------------------------   GET ROUTES  -------------------------------------------------------
 
@@ -194,7 +167,7 @@ app.post('/login', (req, res) => {
   const candidatePassword = req.body.password;
   const verifiedUser = verifyUser(candidateEmail, candidatePassword);
   const cookieGiver = (value) => {
-    req.session['user_id'] = value;   ////////////////////////a
+    req.session['user_id'] = value;
   };
   // if user's email and password doesn't match, send error code 403 and redirect back to /login
   if (!verifiedUser) {
@@ -250,7 +223,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 // generate a randomized string for the longURL, and assigning it into the database
 app.post("/urls", (req, res) => {
-  let generatedURL = generateRandomString();
+  let generatedURL = generateRandomString(7);
   urlDatabase[generatedURL] = { longURL: req.body.longURL, userID: req.session['user_id'] };
 
   if (users[req.session['user_id']]) {
@@ -279,14 +252,14 @@ app.post('/register', (req, res) => {
   }
 
   // else input their info into the database, assign cookies, and redirect to /urls
-  const generatedID = generateRandomString();
+  const generatedID = generateRandomString(7);
   const hashedPassword = bcrypt.hashSync(req.body.password, salt);
   users[generatedID] = {
     id: generatedID,
     email: req.body.email,
     password: hashedPassword,
   };
-  req.session['user_id'] = generatedID;     ///////////////////////
+  req.session['user_id'] = generatedID;
   res.redirect(`/urls/new`);
 });
 
