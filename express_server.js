@@ -97,7 +97,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.end();
 });
 
-// when on /register, render urls_register
+// when on /register, render urls_register ejs
 app.get("/register", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
@@ -108,7 +108,7 @@ app.get("/register", (req, res) => {
   res.end();
 });
 
-//
+// when on /login, render url_login ejs
 app.get("/login", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
@@ -120,7 +120,7 @@ app.get("/login", (req, res) => {
   res.end();
 });
 
-// bring user to the welcome page
+// bring user to the welcome page after successful login
 app.get('/welcome_back', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
@@ -164,10 +164,12 @@ app.post('/login', (req, res) => { //
   const cookieGiver = (value) => {
     res.cookie('user_id',value);
   };
-
+    // if user's email and password doesn't match, send error code 403 and redirect back to /login
   if (!verifiedUser) {
     res.statusCode = 403;
     res.redirect('/login');
+
+    // if email and password matches, give them a cookie and redirect them to the welcome page
   } else if (verifiedUser) {
     cookieGiver(verifiedUser.id);
     res.redirect('/welcome_back');
