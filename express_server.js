@@ -43,10 +43,12 @@ const verifyUser = (email, password) => {
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: 'example'},
+    userID: 'example'
+  },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    userID: 'example'},
+    userID: 'example'
+  },
 };
 
 const users = {
@@ -71,7 +73,8 @@ app.get("/", (req, res) => {
 
 // when the path is /urls, render the urls_index ejs for the client
 app.get("/urls", (req, res) => {
-  
+
+  // helper function to see if the cookie and userID matches
   const isItYourURL = (data) => {
     const newDatabase = {};
     for (const url in data) {
@@ -81,14 +84,13 @@ app.get("/urls", (req, res) => {
     }
     return newDatabase;
   };
- 
+
   const templateVars = {
-    urls: urlDatabase,
     user: users[req.cookies['user_id']],
     newURLS: isItYourURL(urlDatabase),
   };
 
-  console.log('users', users); // TEST
+  // console.log('users', users); // TEST
   res.render('urls_index', templateVars);
 });
 
@@ -97,7 +99,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies['user_id']],
   };
-  console.log('urlDatabase', urlDatabase); // TEST
+  // console.log('urlDatabase', urlDatabase); // TEST
   res.render("urls_new", templateVars);
   res.end();
 });
@@ -164,7 +166,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-// log hello world to client
+// catches anything that is not in the designed route
 app.get("*", (req, res) => {
   res.statusCode = 404;
   res.send("Error 404: Page Not Found");
@@ -176,14 +178,14 @@ app.get("*", (req, res) => {
 
 // check if the email and password matches the database, if yes welcome them, if no try again
 app.post('/login', (req, res) => { //
-  
+
   const candidateEmail = req.body.email;
   const candidatePassword = req.body.password;
   const verifiedUser = verifyUser(candidateEmail, candidatePassword);
   const cookieGiver = (value) => {
-    res.cookie('user_id',value);
+    res.cookie('user_id', value);
   };
-    // if user's email and password doesn't match, send error code 403 and redirect back to /login
+  // if user's email and password doesn't match, send error code 403 and redirect back to /login
   if (!verifiedUser) {
     res.statusCode = 403;
     res.redirect('/login');
@@ -195,7 +197,7 @@ app.post('/login', (req, res) => { //
   }
 });
 
-// clear the user cookie and redirect to /urls
+// clear the user cookie and redirect to /urls, logging the user out
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
   res.redirect('/urls');
@@ -204,15 +206,29 @@ app.post('/logout', (req, res) => {
 // for client to edit an existing longURL
 app.post('/edit/:shortURL', (req, res) => {
   const index = req.params['shortURL'];
-  urlDatabase[index].longURL = req.body['updatedLongURL'];
-  res.redirect('/urls');
+
+  // if cookie does not match the userID, cannot edit longURL
+  if (urlDatabase[index]['userID'] === req.cookies['user_id']) {
+    urlDatabase[index].longURL = req.body['updatedLongURL'];
+    res.redirect('/urls');
+  } else {
+    res.statusCode = 401;
+    res.write('Unauthorized Edit, Error Code: 401');
+  }
 });
 
 // delete the url in our database
 app.post("/urls/:shortURL/delete", (req, res) => {
   const index = req.params['shortURL'];
-  delete urlDatabase[index];
-  res.redirect('/urls');
+
+  // if cookie does not match the userID, cannot delete data from database
+  if (urlDatabase[index]['userID'] === req.cookies['user_id']) {
+    delete urlDatabase[index];
+    res.redirect('/urls');
+  } else {
+    res.statusCode = 401;
+    res.write('Unauthorized Edit, Error Code: 401');
+  }
 });
 
 // redirecting the client to the corresponding urls_show page
@@ -224,7 +240,7 @@ app.post('/urls/:shortURL', (req, res) => {
 // generate a randomized string for the longURL, and assigning it into the database
 app.post("/urls", (req, res) => {
   let generatedURL = generateRandomString();
-  urlDatabase[generatedURL] = {longURL: req.body.longURL, userID: req.cookies['user_id']};      ///
+  urlDatabase[generatedURL] = { longURL: req.body.longURL, userID: req.cookies['user_id'] };
 
   if (users[req.cookies['user_id']]) {
     res.redirect(`/urls/${generatedURL}`);
