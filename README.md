@@ -6,9 +6,9 @@ After the initial sign-up, it allows users to generate randomized 7-digit codes 
 
 ## Final Product
 
-!["Login Screen"](https://raw.githubusercontent.com/fluffyjohnny/tinyapp/main/pictures/Login.png)
+!["Login Screen"](https://raw.githubusercontent.com/fluffyjohnny/tinyapp/main/docs/urls-login.png)
 
-!["Index Screen with User's URLs"](https://raw.githubusercontent.com/fluffyjohnny/tinyapp/main/pictures/Index.png)
+!["Index Screen with User's URLs"](https://raw.githubusercontent.com/fluffyjohnny/tinyapp/main/docs/urls-index.png)
 
 ## Dependencies
 
