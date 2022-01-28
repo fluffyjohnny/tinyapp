@@ -26,18 +26,21 @@ const urlDatabase = {
     longURL: "http://www.lighthouselabs.ca",
     userID: 'example',
     time: 'Jan/6/2021',
+    uniqueClicks: 0,
+
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: 'example',
     time: 'Jan/6/2021',
+    uniqueClicks: 0,
   },
 };
 
 const analytics = {
   "userRandomID": {
     id: "userRandomID",
-    clicks: 0
+    linkClicks: 0,
   },
 };
 
@@ -53,6 +56,8 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+
+const uniquePool = [];
 
 
 // ----------------------------- Helper Functions ------------------------------
@@ -123,7 +128,7 @@ app.get("/urls/:shortURL", (req, res) => {
   // else render urls_show
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
+    data: urlDatabase[req.params.shortURL],
     count: analytics[req.session['user_id']],
     user: users[req.session['user_id']],
   };
@@ -143,7 +148,14 @@ app.get("/u/:shortURL", (req, res) => {
   if (!longURL.includes('://')) {
     longURL = `http://${longURL}`;
   }
-  analytics[req.session['user_id']].clicks ++;
+
+  if (!uniquePool.includes(req.session['user_id'])) {
+    uniquePool.push(req.session['user_id']);
+    urlDatabase[req.params.shortURL].uniqueClicks ++;
+  }
+
+  analytics[req.session['user_id']].linkClicks ++;
+  console.log('test', req.session['user_id']);  /////////////////
   res.redirect(longURL);
 });
 
@@ -209,7 +221,7 @@ app.post('/login', (req, res) => {
   };
   // if email and password matches, give them a cookie and redirect them to the welcome page
   if (verifiedUser) {
-    cookieGiver(verifiedUser.id);
+    cookieGiver(verifiedUser.id, verifiedUser.passport);
     res.redirect('/welcome_back');
   }
   // if user's email and password doesn't match, send error code 403
@@ -220,6 +232,35 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
+});
+
+// input registration info into the user database, then assgining cookie for said user
+app.post('/register', (req, res) => {
+  // if submitted blanks, return error 400
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400).send(`Empty Input! Status Code: ${res.statusCode}`);
+    res.end();
+  }
+  // if email is already in database, return error 400
+  if (registeredEmail(req.body.email)) {
+    res.statusCode = 400;
+    res.write(`Email Already In Use! Status Code: ${res.statusCode}`);
+    res.end();
+  }
+  // else input their info into the database, assign cookies, and redirect to /urls
+  const generatedID = generateRandomString(7);
+  const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+  users[generatedID] = {
+    id: generatedID,
+    email: req.body.email,
+    password: hashedPassword,
+  };
+  analytics[generatedID] = {
+    id: generatedID,
+    linkClicks: 0,
+  };
+  req.session['user_id'] = generatedID;
+  res.redirect(`/urls`);
 });
 
 // for client to edit an existing longURL
@@ -274,39 +315,14 @@ app.post("/urls", (req, res) => {
     res.status(401).send('Unauthorized Acess, Error Code: 401');
   }
   // if logged in, generate new URL and save it to the database, then redirect to the generated link
-  urlDatabase[generatedURL] = { longURL: 'http://' + req.body.longURL, userID: req.session['user_id'], time: getDate() };
+  urlDatabase[generatedURL] = {
+    longURL: 'http://' + req.body.longURL,
+    userID: req.session['user_id'],
+    time: getDate(),
+    uniqueClicks: 0,
+  };
   res.redirect(`/urls/${generatedURL}`);
 });
-
-// input registration info into the user database, then assgining cookie for said user
-app.post('/register', (req, res) => {
-  // if submitted blanks, return error 400
-  if (req.body.email === '' || req.body.password === '') {
-    res.status(400).send(`Empty Input! Status Code: ${res.statusCode}`);
-    res.end();
-  }
-  // if email is already in database, return error 400
-  if (registeredEmail(req.body.email)) {
-    res.statusCode = 400;
-    res.write(`Email Already In Use! Status Code: ${res.statusCode}`);
-    res.end();
-  }
-  // else input their info into the database, assign cookies, and redirect to /urls
-  const generatedID = generateRandomString(7);
-  const hashedPassword = bcrypt.hashSync(req.body.password, salt);
-  users[generatedID] = {
-    id: generatedID,
-    email: req.body.email,
-    password: hashedPassword,
-  };
-  analytics[generatedID] = {
-    id: generatedID,
-    clicks: 0
-  };
-  req.session['user_id'] = generatedID;
-  res.redirect(`/urls`);
-});
-
 
 // ---------------------------------- LISTEN ----------------------------------------------------------
 

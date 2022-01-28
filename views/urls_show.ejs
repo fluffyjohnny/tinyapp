@@ -18,14 +18,13 @@
         <div class="card text-center">
           <div class="card-header"></div>
           <div class="card-body">
-            <h5 class="card-title">TinyURL for: <%= longURL %>
+            <h5 class="card-title">TinyURL for: <%= data.longURL %>
             </h5>
-            <p class="card-text">Short URL: 
+            <p style="font-size:25px;" class="card-text">Short URL: 
               <a href="/u/<%= shortURL %>"><%= shortURL %>
               </a>
-            </p>
-            <p class="note"> Link Employed: <%= count.clicks %> Times!
-            </p>
+           
+              </p>
           </div>
           <div>
             <div class="card-footer text-muted">
@@ -37,12 +36,19 @@
                 </div>
                 <p class='card-text'>New URL:
                   <input style="width: 300px; margin: 10px" name="updatedLongURL" id="submit" type="text"
-                    value=<%=longURL %>>
+                    value=<%= data.longURL %>>
                   <button type="submit" class=" btn btn-primary">Submit</button>
                 </p>
               </form>
               <br>
             </div>
+          </p>
+           
+          <p style="font-size:13px;" class="note"> Link Employed: 
+            <button type="button" class=" btn btn-outline-success btn-sm"><%= count.linkClicks %></button> Times by 
+            <button type="button" class=" btn btn-outline-success btn-sm"><%= data.uniqueClicks %></button> Unique Users!
+          </p>
+
           </div>
           <!-- Bootstrap JS -->
           <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
