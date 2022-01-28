@@ -26,22 +26,22 @@ const urlDatabase = {
     longURL: "http://www.lighthouselabs.ca",
     userID: 'example',
     time: 'Jan/6/2021',
-    uniqueClicks: 0,
-    clicks: 0,
     uniquePool: [],
     logsUser: [],
     logsTime: [],
+    uniqueClicks: 0,
+    clicks: 0,
 
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: 'example',
     time: 'Jan/6/2021',
-    uniqueClicks: 0,
-    clicks: 0,
     uniquePool: [],
     logsUser: [],
     logsTime: [],
+    uniqueClicks: 0,
+    clicks: 0,
   },
 };
 
@@ -65,6 +65,7 @@ const { generateRandomString, registeredEmail, verifyUser, getDate, getTime } = 
 
 // --------------------------------   GET ROUTES  -----------------------------------
 
+
 // home page
 app.get("/", (req, res) => {
   if (users[req.session['user_id']]) {
@@ -73,6 +74,7 @@ app.get("/", (req, res) => {
     res.redirect('/login');
   }
 });
+
 
 // when the path is /urls, render the urls_index ejs for the client
 app.get("/urls", (req, res) => {
@@ -90,28 +92,24 @@ app.get("/urls", (req, res) => {
     user: users[req.session['user_id']],
     newURLS: isItYourURL(urlDatabase),
   };
-
-  console.log('urlDatabase: ', urlDatabase);  //// TTTTTEEEESSSST
   res.render('urls_index', templateVars);
 });
+
 
 // when the path is urls/new, render then urls_new ejs for the client
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.session['user_id']],
   };
-  console.log('users: ', users);  //// TTTTTEEEESSSST
-  
   res.render("urls_new", templateVars);
-  res.end();
 });
+
 
 // when the path is urls/shortURL, render urls_show ejs
 app.get("/urls/:shortURL", (req, res) => {
   // if shortURL doesnt exist
   if (!urlDatabase[req.params.shortURL]) {
-    res.statusCode = 404;
-    res.send('Page Not Found! Error Code: 404');
+    res.status(404).send('Page Not Found! Error Code: 404');
   }
   // if user is not logged in
   if (!users[req.session['user_id']]) {
@@ -121,8 +119,7 @@ app.get("/urls/:shortURL", (req, res) => {
   // if user is logged in, but does not own the short URL
   const index = req.params['shortURL'];
   if (urlDatabase[index].userID !== users[req.session['user_id']].id) {
-    res.statusCode = 401;
-    res.send('URL Belongs to Another User! Error Code: 401');
+    res.status(401).send('URL Belongs to Another User! Error Code: 401');
   }
   // else render urls_show
   const templateVars = {
@@ -133,13 +130,13 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+
 // redirect to longURL when clicked on shortURL, and throw 404 if short url isn't in the database
 app.get("/u/:shortURL", (req, res) => {
 
   // doesn't exist in database, therefore error 404
   if (!urlDatabase[req.params.shortURL]) {
-    res.statusCode = 404;
-    res.send('Page Not Found! Error Code: 404');
+    res.status(404).send('Page Not Found! Error Code: 404');
   }
   // if the new long URL does not include http://, add it
   let longURL = urlDatabase[req.params.shortURL].longURL;
@@ -158,6 +155,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+
 // when on /login, render url_login ejs
 app.get("/login", (req, res) => {
   const templateVars = {
@@ -169,8 +167,8 @@ app.get("/login", (req, res) => {
   }
   // else render login page
   res.render('urls_login', templateVars);
-  res.end();
 });
+
 
 // when on /register, render urls_register ejs
 app.get("/register", (req, res) => {
@@ -183,8 +181,8 @@ app.get("/register", (req, res) => {
   }
   // else redirect to register page
   res.render("urls_register", templateVars);
-  res.end();
 });
+
 
 // bring user to the welcome page after successful login
 app.get('/welcome_back', (req, res) => {
@@ -192,21 +190,18 @@ app.get('/welcome_back', (req, res) => {
     user: users[req.session['user_id']],
   };
   res.render('urls_welcomeBack', templateVars);
-  res.end();
 });
+
 
 // list the JSON object string for our urlDatabase
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-  res.end();
 });
 
 
 // catches anything that is not in the designed route
 app.get("*", (req, res) => {
-  res.statusCode = 404;
-  res.send("Error 404: Page Not Found");
-  res.end();
+  res.status(404).send("Error 404: Page Not Found");
 });
 
 
@@ -227,24 +222,24 @@ app.post('/login', (req, res) => {
   res.status(403).send('Incorrect Email or Password!');
 });
 
+
 // clear the user cookie and redirect to /urls, logging the user out
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
+
 // input registration info into the user database, then assgining cookie for said user
 app.post('/register', (req, res) => {
   // if submitted blanks, return error 400
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send(`Empty Input! Status Code: ${res.statusCode}`);
-    res.end();
   }
   // if email is already in database, return error 400
   if (registeredEmail(req.body.email)) {
     res.statusCode = 400;
     res.write(`Email Already In Use! Status Code: ${res.statusCode}`);
-    res.end();
   }
   // else input their info into the database, assign cookies, and redirect to /urls
   const generatedID = generateRandomString(7);
@@ -258,17 +253,18 @@ app.post('/register', (req, res) => {
   res.redirect(`/urls`);
 });
 
+
 // for client to edit an existing longURL
 app.put('/edit/:shortURL?', (req, res) => {
   const index = req.params['shortURL'];
   // if cookie does not match the userID, cannot edit longURL
   if (urlDatabase[index]['userID'] !== req.session['user_id']) {
-    res.statusCode = 401;
-    res.write('Unauthorized Edit, Error Code: 401');
+    res.status(401).send('Unauthorized Edit, Error Code: 401');
   }
   urlDatabase[index].longURL = req.body['updatedLongURL'];
   res.redirect('/urls');
 });
+
 
 // delete the url in our database
 app.delete("/urls/:shortURL?", (req, res) => {
@@ -285,6 +281,7 @@ app.delete("/urls/:shortURL?", (req, res) => {
   delete urlDatabase[index];
   res.redirect('/urls');
 });
+
 
 // to edit longURL, redirecting the client to the corresponding urls_show page
 app.post('/urls/:shortURL', (req, res) => {
@@ -314,11 +311,11 @@ app.post("/urls", (req, res) => {
     longURL: 'http://' + req.body.longURL,
     userID: req.session['user_id'],
     time: getDate(),
-    uniqueClicks: 0,
     uniquePool: [],
-    clicks: 0,
     logsUser: [],
     logsTime: [],
+    uniqueClicks: 0,
+    clicks: 0,
   };
   res.redirect(`/urls/${generatedURL}`);
 });
