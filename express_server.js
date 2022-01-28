@@ -6,11 +6,13 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const helpers = require("./helpers");
 const salt = bcrypt.genSaltSync(10);
+const methodOverride = require('method-override');
 
 // ------------------------------ Middleware -----------------------------------
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+app.use(methodOverride('_method'));
 app.use(cookieSession({
   name: 'session',
   keys: ['chickenButt', 'bokchoyBoy', 'babyJesus'],
@@ -206,7 +208,7 @@ app.post('/logout', (req, res) => {
 });
 
 // for client to edit an existing longURL
-app.post('/edit/:shortURL', (req, res) => {
+app.put('/edit/:shortURL?', (req, res) => {
   const index = req.params['shortURL'];
   // if cookie does not match the userID, cannot edit longURL
   if (urlDatabase[index]['userID'] !== req.session['user_id']) {
@@ -218,7 +220,7 @@ app.post('/edit/:shortURL', (req, res) => {
 });
 
 // delete the url in our database
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL?", (req, res) => {
   const index = req.params['shortURL'];
   // if user is not logged in, error 401
   if (!users[req.session['user_id']]) {
@@ -257,7 +259,7 @@ app.post("/urls", (req, res) => {
     res.status(401).send('Unauthorized Acess, Error Code: 401');
   }
   // if logged in, generate new URL and save it to the database, then redirect to the generated link
-  urlDatabase[generatedURL] = { longURL: req.body.longURL, userID: req.session['user_id'] };
+  urlDatabase[generatedURL] = { longURL: 'http://' + req.body.longURL, userID: req.session['user_id'] };
   res.redirect(`/urls/${generatedURL}`);
 });
 
