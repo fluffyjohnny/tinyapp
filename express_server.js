@@ -27,6 +27,8 @@ const urlDatabase = {
     userID: 'example',
     time: 'Jan/6/2021',
     uniqueClicks: 0,
+    clicks: 0,
+    uniquePool: [],
     logsUser: [],
     logsTime: [],
 
@@ -36,15 +38,10 @@ const urlDatabase = {
     userID: 'example',
     time: 'Jan/6/2021',
     uniqueClicks: 0,
+    clicks: 0,
+    uniquePool: [],
     logsUser: [],
     logsTime: [],
-  },
-};
-
-const analytics = {
-  "userRandomID": {
-    id: "userRandomID",
-    linkClicks: 0,
   },
 };
 
@@ -60,8 +57,6 @@ const users = {
     password: "dishwasher-funk"
   }
 };
-
-const uniquePool = [];
 
 
 // ----------------------------- Helper Functions ------------------------------
@@ -97,7 +92,6 @@ app.get("/urls", (req, res) => {
   };
 
   console.log('urlDatabase: ', urlDatabase);  //// TTTTTEEEESSSST
-  console.log('analytics', analytics); // trrrewst
   res.render('urls_index', templateVars);
 });
 
@@ -134,7 +128,6 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     data: urlDatabase[req.params.shortURL],
-    count: analytics[req.session['user_id']],
     user: users[req.session['user_id']],
   };
   res.render("urls_show", templateVars);
@@ -154,14 +147,14 @@ app.get("/u/:shortURL", (req, res) => {
     longURL = `http://${longURL}`;
   }
 
-  if (!uniquePool.includes(req.session['user_id'])) {
-    uniquePool.push(req.session['user_id']);
+  if (!urlDatabase[req.params.shortURL].uniquePool.includes(req.session['user_id'])) {
+    urlDatabase[req.params.shortURL].uniquePool.push(req.session['user_id']);
     urlDatabase[req.params.shortURL].uniqueClicks ++;
   }
 
   urlDatabase[req.params.shortURL].logsTime.push(`${getDate()}, ${getTime()}`);
   urlDatabase[req.params.shortURL].logsUser.push(req.session['user_id']);
-  analytics[req.session['user_id']].linkClicks ++;
+  urlDatabase[req.params.shortURL].clicks ++;
   res.redirect(longURL);
 });
 
@@ -261,10 +254,6 @@ app.post('/register', (req, res) => {
     email: req.body.email,
     password: hashedPassword,
   };
-  analytics[generatedID] = {
-    id: generatedID,
-    linkClicks: 0,
-  };
   req.session['user_id'] = generatedID;
   res.redirect(`/urls`);
 });
@@ -326,6 +315,8 @@ app.post("/urls", (req, res) => {
     userID: req.session['user_id'],
     time: getDate(),
     uniqueClicks: 0,
+    uniquePool: [],
+    clicks: 0,
     logsUser: [],
     logsTime: [],
   };
