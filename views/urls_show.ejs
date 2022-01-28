@@ -20,15 +20,21 @@
           <div class="card-body">
             <h5 class="card-title">TinyURL for: <%= longURL %>
             </h5>
-            <p class="card-text">Short URL: <a href="/u/<%= shortURL %>">
-                <%= shortURL %>
-              </a></p>
+            <p class="card-text">Short URL: 
+              <a href="/u/<%= shortURL %>"><%= shortURL %>
+              </a>
+            </p>
+            <p class="note"> Link Employed: <%= count.clicks %> Times!
+            </p>
           </div>
           <div>
             <div class="card-footer text-muted">
-              <br>
+
               <form method="POST" action="/edit/<%= shortURL %>?_method=PUT">
-                <h4 class="card-title"> Edit </h4>
+                <div>
+                  <br>
+                  <h4 class="card-title"> Edit </h4>
+                </div>
                 <p class='card-text'>New URL:
                   <input style="width: 300px; margin: 10px" name="updatedLongURL" id="submit" type="text"
                     value=<%=longURL %>>

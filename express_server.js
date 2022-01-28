@@ -24,11 +24,20 @@ app.use(cookieSession({
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: 'example'
+    userID: 'example',
+    time: 'Jan/6/2021',
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    userID: 'example'
+    userID: 'example',
+    time: 'Jan/6/2021',
+  },
+};
+
+const analytics = {
+  "userRandomID": {
+    id: "userRandomID",
+    clicks: 0
   },
 };
 
@@ -45,9 +54,10 @@ const users = {
   }
 };
 
+
 // ----------------------------- Helper Functions ------------------------------
 
-const { generateRandomString, registeredEmail, verifyUser } = helpers(users, bcrypt);
+const { generateRandomString, registeredEmail, verifyUser, getDate } = helpers(users, bcrypt);
 
 // --------------------------------   GET ROUTES  -----------------------------------
 
@@ -76,6 +86,9 @@ app.get("/urls", (req, res) => {
     user: users[req.session['user_id']],
     newURLS: isItYourURL(urlDatabase),
   };
+
+  console.log('urlDatabase: ', urlDatabase);  //// TTTTTEEEESSSST
+  console.log('analytics', analytics); // trrrewst
   res.render('urls_index', templateVars);
 });
 
@@ -84,6 +97,7 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.session['user_id']],
   };
+  console.log('users: ', users);  //// TTTTTEEEESSSST
   res.render("urls_new", templateVars);
   res.end();
 });
@@ -110,6 +124,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
+    count: analytics[req.session['user_id']],
     user: users[req.session['user_id']],
   };
   res.render("urls_show", templateVars);
@@ -128,7 +143,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (!longURL.includes('://')) {
     longURL = `http://${longURL}`;
   }
-  // redirect to actual URL
+  analytics[req.session['user_id']].clicks ++;
   res.redirect(longURL);
 });
 
@@ -259,7 +274,7 @@ app.post("/urls", (req, res) => {
     res.status(401).send('Unauthorized Acess, Error Code: 401');
   }
   // if logged in, generate new URL and save it to the database, then redirect to the generated link
-  urlDatabase[generatedURL] = { longURL: 'http://' + req.body.longURL, userID: req.session['user_id'] };
+  urlDatabase[generatedURL] = { longURL: 'http://' + req.body.longURL, userID: req.session['user_id'], time: getDate() };
   res.redirect(`/urls/${generatedURL}`);
 });
 
@@ -283,6 +298,10 @@ app.post('/register', (req, res) => {
     id: generatedID,
     email: req.body.email,
     password: hashedPassword,
+  };
+  analytics[generatedID] = {
+    id: generatedID,
+    clicks: 0
   };
   req.session['user_id'] = generatedID;
   res.redirect(`/urls`);

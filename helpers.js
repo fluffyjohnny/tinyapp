@@ -1,5 +1,5 @@
 
-const helpers =  (users, bcrypt) => {
+const helpers = (users, bcrypt) => {
 
   const generateRandomString = (num) => {
     let str = '';
@@ -9,7 +9,7 @@ const helpers =  (users, bcrypt) => {
     }
     return str;
   };
-  
+
   const registeredEmail = (email) => {
     for (let id in users) {
       if (users[id].email === email) {
@@ -18,7 +18,7 @@ const helpers =  (users, bcrypt) => {
     }
     return false;
   };
-  
+
   const verifyUser = (email, password) => {
     for (const user in users) {
       if (users[user].email === email && bcrypt.compareSync(password, users[user].password)) {
@@ -34,7 +34,54 @@ const helpers =  (users, bcrypt) => {
         return database[user].id;
   };
 
-  return { generateRandomString, registeredEmail, verifyUser, getUserByEmail };
+  const getDate = () => {
+    let d = new Date();
+    const whatMonth = () => {
+      switch (d.getMonth()) {
+      case 0:
+        return 'Jan';
+      case 1:
+        return 'Feb';
+      case 2:
+        return 'Mar';
+      case 3:
+        return 'Apr';
+      case 4:
+        return 'May';
+      case 5:
+        return 'Jun';
+      case 6:
+        return 'Jul';
+      case 7:
+        return 'Aug';
+      case 8:
+        return 'Sept';
+      case 9:
+        return 'Oct';
+      case 10:
+        return 'Nov';
+      case 11:
+        return 'Dec';
+      }
+    };
+    return (`${whatMonth()}/${d.getDate()}/${d.getFullYear()}`);
+  };
+
+  // var counter = {};
+
+  // const manageClicks = (url) => {
+  //   if (! counter[url]) counter[url] = 0;
+  //   counter[url] ++;
+  //   alert('you clicked '+counter[url]+' '+url);
+   
+  //     // return location.href = url;
+  //   return false;
+  // }
+
+
+
+
+  return { generateRandomString, registeredEmail, verifyUser, getUserByEmail, getDate };
 };
 
 

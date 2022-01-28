@@ -19,10 +19,14 @@
       <h3> &nbsp&nbsp&nbsp&nbsp Please Login or Signup first! </h3>
     <% } else { %>
         <main style="margin: 1em;">
-          <h3>Create TinyURL</h3>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <ul class="nav">
+              <a class="navbar-brand">Create TinyURL</a>
+             </ul>
+        </nav>
           <form class="form-inline" action="/urls" method="POST">
             <div class="form-group mb-2">
-              <label for="longURL">Enter a URL:</label>
+              &nbsp&nbsp&nbsp&nbsp<label for="longURL">Enter a URL:</label>
               <input class="form-control" type="text" name="longURL" placeholder="http://"
                 style="width: 300px; margin: 1em">
               <button type="submit" class="btn btn-outline-success">Submit</button>
