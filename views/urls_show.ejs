@@ -16,19 +16,24 @@
       <h5> Please Login or Signup first! </h5>
       <% } else { %>
         <div class="card text-center">
-          <div class="card-header"></div>
-          <div class="card-body">
+          <div class="card-header">
+            <br>
             <h5 class="card-title">TinyURL for: <%= data.longURL %>
+          </div>
+          <div class="card-body">
+            <br>
+            <br>
             </h5>
-            <p style="font-size:25px;" class="card-text">Short URL: 
-              <a href="/u/<%= shortURL %>"><%= shortURL %>
+            <p style="font-size:25px;" class="card-text">Short URL: &nbsp&nbsp
+              <a href="/u/<%= shortURL %>">
+                <%= shortURL %>
               </a>
-           
-              </p>
+            </p>
+            <br>
+            <br>
           </div>
           <div>
             <div class="card-footer text-muted">
-
               <form method="POST" action="/edit/<%= shortURL %>?_method=PUT">
                 <div>
                   <br>
@@ -36,19 +41,46 @@
                 </div>
                 <p class='card-text'>New URL:
                   <input style="width: 300px; margin: 10px" name="updatedLongURL" id="submit" type="text"
-                    value=<%= data.longURL %>>
+                    value=<%=data.longURL %>>
                   <button type="submit" class=" btn btn-primary">Submit</button>
                 </p>
               </form>
               <br>
             </div>
-          </p>
-           
-          <p style="font-size:13px;" class="note"> Link Employed: 
-            <button type="button" class=" btn btn-outline-success btn-sm"><%= count.linkClicks %></button> Times by 
-            <button type="button" class=" btn btn-outline-success btn-sm"><%= data.uniqueClicks %></button> Unique Users!
-          </p>
+            </p>
+            <br>
+            <br>
+            <p style="font-size:13px;" class="note"> TinyURL Employed:
+              <button type="button" class=" btn btn-outline-success btn-sm">
+                <%= count.linkClicks %>
+              </button> Times by
+              <button type="button" class=" btn btn-outline-success btn-sm">
+                <%= data.uniqueClicks %>
+              </button> Unique Users!
+            </p>
+            <table class="table">
+              <thead>
+                <tr>
+                  <br>
+                  <br>
+                  <th style="font-size:13px;" scope="col">Timestamp</th>
+                  <th style="font-size:13px;" scope="col">Visitor ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                <td>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Cras justo odio</li>
+                  </ul>
+                </td>
+                <td>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Cras justo odio</li>
+                  </ul>
+                </td>
 
+              </tbody>
+            </table>
           </div>
           <!-- Bootstrap JS -->
           <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

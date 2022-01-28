@@ -24,6 +24,13 @@
              </ul>
         </nav>
           <table class="table">
+            <style>table
+              { 
+              margin-left: auto;
+              margin-right: auto;
+              text-align:center;
+              }
+            </style>
             <thead>
               <tr>
                 <br>
@@ -47,12 +54,12 @@
                     <%= newURLS[url].time %>
                   </td>
                   <td>
-                    <form class="form-inline" method="POST" action="/urls/<%= url %>">
+                    <form method="POST" action="/urls/<%= url %>">
                       <button type="submit" class=" btn btn-outline-warning">Edit</button>
                     </form>
                   </td>
                   <td>
-                    <form class="form-inline" method="POST" action="/urls/<%= url %>?_method=DELETE">
+                    <form method="POST" action="/urls/<%= url %>?_method=DELETE">
                       <button type="submit" class=" btn btn-outline-danger">Delete</button>
                     </form>
                   </td>
