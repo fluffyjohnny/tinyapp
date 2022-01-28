@@ -1,5 +1,5 @@
 
-const helperFunctions =  (users, bcrypt) => {
+const helpers =  (users, bcrypt) => {
 
   const generateRandomString = (num) => {
     let str = '';
@@ -30,11 +30,12 @@ const helperFunctions =  (users, bcrypt) => {
 
   const getUserByEmail = function(email, database) {
     for (const user in database)
-      if (email === database[user].email)
+      if (database[user].email === email)
         return database[user].id;
   };
 
+  return { generateRandomString, registeredEmail, verifyUser, getUserByEmail };
 };
 
 
-module.exports = helperFunctions;
+module.exports = helpers;

@@ -4,7 +4,7 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
-const helperFunctions = require("./helpers");
+const helpers = require("./helpers");
 const salt = bcrypt.genSaltSync(10);
 
 
@@ -46,7 +46,7 @@ const users = {
 
 // ----------------------------- Helper Functions ------------------------------
 
-const { generateRandomString, registeredEmail, verifyUser, getUserEmail } = helperFunctions(users, bcrypt);
+const { generateRandomString, registeredEmail, verifyUser } = helpers(users, bcrypt);
 
 // --------------------------------   GET ROUTES  -------------------------------------------------------
 
@@ -269,3 +269,7 @@ app.post('/register', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+
+module.exports = app;
