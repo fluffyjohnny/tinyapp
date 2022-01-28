@@ -59,26 +59,39 @@
               </button> Unique Users!
             </p>
             <table class="table">
+
               <thead>
                 <tr>
                   <br>
                   <br>
                   <th style="font-size:13px;" scope="col">Timestamp</th>
-                  <th style="font-size:13px;" scope="col">Visitor ID</th>
+                  <th style="font-size:13px;" scope="col">Visitor ID &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</th> 
                 </tr>
               </thead>
               <tbody>
+                <tr>
                 <td>
+               
                   <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Cras justo odio</li>
+                    <% for (let i=0; i < data.logsTime.length; i++) { %>
+                      <li style="font-size:13px;" class="list-group-item">
+                        <%= data.logsTime[i] %>
+                      </li>
+                      <% } %>
                   </ul>
+                </td>
+                </ul>
                 </td>
                 <td>
                   <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Cras justo odio</li>
+                    <% for (let i=0; i < data.logsUser.length; i++) { %>
+                      <li style="font-size:13px;" class="list-group-item">
+                        <%= data.logsUser[i] %> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                      </li>
+                      <% } %>
                   </ul>
                 </td>
-
+                </tr>
               </tbody>
             </table>
           </div>

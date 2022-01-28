@@ -67,21 +67,12 @@ const helpers = (users, bcrypt) => {
     return (`${whatMonth()}/${d.getDate()}/${d.getFullYear()}`);
   };
 
-  // var counter = {};
+  const getTime = () => {
+    let d = new Date();
+    return (`${d.getHours()}h ${d.getMinutes()}min ${d.getSeconds()}s`);
+  };
 
-  // const manageClicks = (url) => {
-  //   if (! counter[url]) counter[url] = 0;
-  //   counter[url] ++;
-  //   alert('you clicked '+counter[url]+' '+url);
-   
-  //     // return location.href = url;
-  //   return false;
-  // }
-
-
-
-
-  return { generateRandomString, registeredEmail, verifyUser, getUserByEmail, getDate };
+  return { generateRandomString, registeredEmail, verifyUser, getUserByEmail, getDate, getTime };
 };
 
 

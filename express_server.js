@@ -27,6 +27,8 @@ const urlDatabase = {
     userID: 'example',
     time: 'Jan/6/2021',
     uniqueClicks: 0,
+    logsUser: [],
+    logsTime: [],
 
   },
   "9sm5xK": {
@@ -34,6 +36,8 @@ const urlDatabase = {
     userID: 'example',
     time: 'Jan/6/2021',
     uniqueClicks: 0,
+    logsUser: [],
+    logsTime: [],
   },
 };
 
@@ -48,7 +52,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "purple-monkey-dinosaur",
   },
   "user2RandomID": {
     id: "user2RandomID",
@@ -62,7 +66,7 @@ const uniquePool = [];
 
 // ----------------------------- Helper Functions ------------------------------
 
-const { generateRandomString, registeredEmail, verifyUser, getDate } = helpers(users, bcrypt);
+const { generateRandomString, registeredEmail, verifyUser, getDate, getTime } = helpers(users, bcrypt);
 
 // --------------------------------   GET ROUTES  -----------------------------------
 
@@ -103,6 +107,7 @@ app.get("/urls/new", (req, res) => {
     user: users[req.session['user_id']],
   };
   console.log('users: ', users);  //// TTTTTEEEESSSST
+  
   res.render("urls_new", templateVars);
   res.end();
 });
@@ -154,8 +159,9 @@ app.get("/u/:shortURL", (req, res) => {
     urlDatabase[req.params.shortURL].uniqueClicks ++;
   }
 
+  urlDatabase[req.params.shortURL].logsTime.push(`${getDate()}, ${getTime()}`);
+  urlDatabase[req.params.shortURL].logsUser.push(req.session['user_id']);
   analytics[req.session['user_id']].linkClicks ++;
-  console.log('test', req.session['user_id']);  /////////////////
   res.redirect(longURL);
 });
 
@@ -320,6 +326,8 @@ app.post("/urls", (req, res) => {
     userID: req.session['user_id'],
     time: getDate(),
     uniqueClicks: 0,
+    logsUser: [],
+    logsTime: [],
   };
   res.redirect(`/urls/${generatedURL}`);
 });
