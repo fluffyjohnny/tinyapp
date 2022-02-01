@@ -97,25 +97,26 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // redirect to longURL when clicked on shortURL, and throw 404 if short url isn't in the database
 app.get("/u/:shortURL", (req, res) => {
+  const ID = urlDatabase[req.params.shortURL];
 
   // doesn't exist in database, therefore error 404
-  if (!urlDatabase[req.params.shortURL]) {
+  if (!ID) {
     res.status(404).send('Page Not Found! Error Code: 404');
   }
   // if the new long URL does not include http://, add it
-  let longURL = urlDatabase[req.params.shortURL].longURL;
+  let longURL = ID.longURL;
   if (!longURL.includes('://')) {
     longURL = `http://${longURL}`;
   }
 
-  if (!urlDatabase[req.params.shortURL].uniquePool.includes(req.session['user_id'])) {
-    urlDatabase[req.params.shortURL].uniquePool.push(req.session['user_id']);
-    urlDatabase[req.params.shortURL].uniqueClicks ++;
+  if (!ID.uniquePool.includes(req.session['user_id'])) {
+    ID.uniquePool.push(req.session['user_id']);
+    ID.uniqueClicks ++;
   }
 
-  urlDatabase[req.params.shortURL].logsTime.push(`${getDate()}, ${getTime()}`);
-  urlDatabase[req.params.shortURL].logsUser.push(req.session['user_id']);
-  urlDatabase[req.params.shortURL].clicks ++;
+  ID.logsTime.push(`${getDate()}, ${getTime()}`);
+  ID.logsUser.push(req.session['user_id']);
+  ID.clicks ++;
   res.redirect(longURL);
 });
 
@@ -199,11 +200,11 @@ app.post('/register', (req, res) => {
   // if submitted blanks, return error 400
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send(`Empty Input! Status Code: ${res.statusCode}`);
+    res.redirect('/register');
   }
   // if email is already in database, return error 400
   if (registeredEmail(req.body.email)) {
-    res.statusCode = 400;
-    res.write(`Email Already In Use! Status Code: ${res.statusCode}`);
+    res.status(400).send(`Email Already In Use! Status Code: ${res.statusCode}`);
   }
   // else input their info into the database, assign cookies, and redirect to /urls
   const generatedID = generateRandomString(7);
