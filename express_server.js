@@ -73,7 +73,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   // if shortURL doesnt exist
   if (!urlDatabase[req.params.shortURL]) {
-    res.status(404).send('Page Not Found! Error Code: 404');
+    res.status(404).send('Page Not Found! Error Code: 404. Please Return to the Previous Page.');
   }
   // if user is not logged in
   if (!users[req.session['user_id']]) {
@@ -83,7 +83,7 @@ app.get("/urls/:shortURL", (req, res) => {
   // if user is logged in, but does not own the short URL
   const index = req.params['shortURL'];
   if (urlDatabase[index].userID !== users[req.session['user_id']].id) {
-    res.status(401).send('URL Belongs to Another User! Error Code: 401');
+    res.status(401).send('URL Belongs to Another User! Error Code: 401. Please Return to the Previous Page.');
   }
   // else render urls_show
   const templateVars = {
@@ -101,7 +101,7 @@ app.get("/u/:shortURL", (req, res) => {
 
   // doesn't exist in database, therefore error 404
   if (!ID) {
-    res.status(404).send('Page Not Found! Error Code: 404');
+    res.status(404).send('Page Not Found! Error Code: 404. Please Return to the Previous Page.');
   }
   // if the new long URL does not include http://, add it
   let longURL = ID.longURL;
@@ -184,7 +184,7 @@ app.post('/login', (req, res) => {
     res.redirect('/welcome_back');
   }
   // if user's email and password doesn't match, send error code 403
-  res.status(403).send('Incorrect Email or Password!');
+  res.status(403).send('Incorrect Email or Password! Please Return to the Previous Page.');
 });
 
 
@@ -199,12 +199,12 @@ app.post('/logout', (req, res) => {
 app.post('/register', (req, res) => {
   // if submitted blanks, return error 400
   if (req.body.email === '' || req.body.password === '') {
-    res.status(400).send(`Empty Input! Status Code: ${res.statusCode}`);
+    res.status(400);
     res.redirect('/register');
   }
   // if email is already in database, return error 400
   if (registeredEmail(req.body.email)) {
-    res.status(400).send(`Email Already In Use! Status Code: ${res.statusCode}`);
+    res.status(400).send(`Email Already In Use! Status Code: ${res.statusCode}. Please Return to the Previous Page.`);
   }
   // else input their info into the database, assign cookies, and redirect to /urls
   const generatedID = generateRandomString(7);
@@ -224,7 +224,7 @@ app.put('/edit/:shortURL?', (req, res) => {
   const index = req.params['shortURL'];
   // if cookie does not match the userID, cannot edit longURL
   if (urlDatabase[index]['userID'] !== req.session['user_id']) {
-    res.status(401).send('Unauthorized Edit, Error Code: 401');
+    res.status(401).send('Unauthorized Edit, Error Code: 401. Please Return to the Previous Page.');
   }
   urlDatabase[index].longURL = req.body['updatedLongURL'];
   res.redirect('/urls');
@@ -236,11 +236,11 @@ app.delete("/urls/:shortURL?", (req, res) => {
   const index = req.params['shortURL'];
   // if user is not logged in, error 401
   if (!users[req.session['user_id']]) {
-    res.status(401).send('Unauthorized Access, Error Code: 401');
+    res.status(401).send('Unauthorized Access, Error Code: 401. Please Return to the Previous Page.');
   }
   // if cookie does not match the userID, cannot delete data from database
   if (urlDatabase[index]['userID'] !== req.session['user_id']) {
-    res.status(401).send('Unauthorized Edit, Error Code: 401');
+    res.status(401).send('Unauthorized Edit, Error Code: 401. Please Return to the Previous Page.');
   }
   // else delete from database
   delete urlDatabase[index];
@@ -253,11 +253,11 @@ app.post('/urls/:shortURL', (req, res) => {
   const index = req.params['shortURL'];
   // if user is not logged in
   if (!users[req.session['user_id']]) {
-    res.status(401).send('Unauthorized Access, Error Code: 401');
+    res.status(401).send('Unauthorized Access, Error Code: 401. Please Return to the Previous Page.');
   }
   // if user does not own the url, error 401
   if (urlDatabase[index].userID !== users[req.session['user_id']].id) {
-    res.status(401).send('Unauthorized Edit, Error Code: 401');
+    res.status(401).send('Unauthorized Edit, Error Code: 401. Please Return to the Previous Page.');
   }
   // else redirect
   res.redirect(`/urls/${index}`);
@@ -269,7 +269,7 @@ app.post("/urls", (req, res) => {
   let generatedURL = generateRandomString(7);
   // if not logged in, error
   if (!users[req.session['user_id']].id) {
-    res.status(401).send('Unauthorized Acess, Error Code: 401');
+    res.status(401).send('Unauthorized Acess, Error Code: 401. Please Return to the Previous Page.');
   }
   // if logged in, generate new URL and save it to the database, then redirect to the generated link
   urlDatabase[generatedURL] = {
