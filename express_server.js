@@ -42,6 +42,11 @@ app.get("/", (req, res) => {
 
 // when the path is /urls, render the urls_index ejs for the client
 app.get("/urls", (req, res) => {
+  // if user is not logged in, redirect to /login
+  if (!users[req.session['user_id']]) {
+    res.status(401);
+    res.redirect('/login');
+  }
   // helper function to see if the cookie and userID matches
   const isItYourURL = (data) => {
     const newDatabase = {};
@@ -62,6 +67,10 @@ app.get("/urls", (req, res) => {
 
 // when the path is urls/new, render then urls_new ejs for the client
 app.get("/urls/new", (req, res) => {
+  if (!users[req.session['user_id']]) {
+    res.status(401);
+    res.redirect('/login');
+  }
   const templateVars = {
     user: users[req.session['user_id']],
   };

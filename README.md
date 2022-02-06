@@ -24,4 +24,4 @@ After the initial sign-up, it allows users to generate randomized 7-digit codes 
 ## Getting Started
 
 - Install all dependencies (using the `npm install` command).
-- Run the development web server using the `node express_server.js` command.`
+- Run the development web server using `node start` command.
