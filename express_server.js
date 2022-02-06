@@ -44,8 +44,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   // if user is not logged in, redirect to /login
   if (!users[req.session['user_id']]) {
-    res.status(401);
-    res.redirect('/login');
+    res.status(401).redirect('/login');
   }
   // helper function to see if the cookie and userID matches
   const isItYourURL = (data) => {
@@ -187,6 +186,9 @@ app.post('/login', (req, res) => {
   const cookieGiver = (value) => {
     req.session['user_id'] = value;
   };
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400).send('Input Field(s) Left Blank! Please Return to the Previous Page.');
+  }
   // if email and password matches, give them a cookie and redirect them to the welcome page
   if (verifiedUser) {
     cookieGiver(verifiedUser.id, verifiedUser.passport);
@@ -208,8 +210,7 @@ app.post('/logout', (req, res) => {
 app.post('/register', (req, res) => {
   // if submitted blanks, return error 400
   if (req.body.email === '' || req.body.password === '') {
-    res.status(400);
-    res.redirect('/register');
+    res.status(400).send('Input Field(s) Left Blank! Please Return to the Previous Page.');
   }
   // if email is already in database, return error 400
   if (registeredEmail(req.body.email)) {
